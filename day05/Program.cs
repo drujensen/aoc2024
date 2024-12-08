@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-class Rule
+﻿class Rule
 {
     public int Key { get; set; }
     public int Value { get; set; }
