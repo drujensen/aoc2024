@@ -1,7 +1,15 @@
-﻿class Map
+﻿class VisitedField
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+    public int Direction { get; set; }
+}
+
+class Map
 {
     private List<string> _lines;
     private List<List<char>> map = new List<List<char>>();
+    private List<VisitedField> visited = new List<VisitedField>();
 
     private int playerX = 0;
     private int playerY = 0;
@@ -16,6 +24,7 @@
     private void reset()
     {
         map = new List<List<char>>();
+        visited = new List<VisitedField>();
         foreach (var line in _lines)
         {
             addRow(line);
@@ -32,7 +41,7 @@
         }
         map.Add(row);
     }
-    
+
     private void findPlayerPosition()
     {
         for (int i = 0; i < map.Count; i++)
@@ -52,7 +61,7 @@
 
     public int CountVisitedFields()
     {
-        while (isPlayerOnMap()) 
+        while (isPlayerOnMap())
         {
             movePlayer();
         }
@@ -74,7 +83,7 @@
     public int CountPossibleObstructionsThatProduceEndlessLoops()
     {
         int count = 0;
-        
+
         for (int i = 0; i < map.Count; i++)
         {
             for (int j = 0; j < map[i].Count; j++)
@@ -86,7 +95,7 @@
                     continue;
                 }
                 map[i][j] = 'O';
-                while (isPlayerOnMap()) 
+                while (isPlayerOnMap())
                 {
                     if (isPlayerInEndlessLoop())
                     {
@@ -99,8 +108,8 @@
 
                     movePlayer();
                 }
-                
-                
+
+
             }
         }
         return count;
@@ -123,51 +132,21 @@
         return playerX >= 0 && playerX < map.Count && playerY >= 0 && playerY < map[0].Count;
     }
 
+
     private bool isPlayerInEndlessLoop()
     {
-        if (playerDirection == 0)
+        foreach (var v in visited)
         {
-            if (isPositionOnMap(playerY - 1, playerX) && 
-                map[playerY - 1][playerX] == '+' &&
-                (map[playerY - 2][playerX] == '#' || map[playerY - 2][playerX] == 'O'))
+            if (v.X == playerX && v.Y == playerY && v.Direction == playerDirection)
             {
-                map[playerY][playerX] = '*';
                 return true;
             }
         }
-        else if (playerDirection == 1)
-        {
-            if (isPositionOnMap(playerY, playerX + 1) && 
-                map[playerY][playerX + 1] == '+' &&
-                (map[playerY][playerX + 2] == '#' || map[playerY][playerX + 2] == 'O'))
-            {
-                map[playerY][playerX] = '*';
-                return true;
-            }
-        }
-        else if (playerDirection == 2)
-        {
-            if (isPositionOnMap(playerY + 1, playerX) && 
-                map[playerY + 1][playerX] == '+' &&
-                (map[playerY + 2][playerX] == '#' || map[playerY + 2][playerX] == 'O'))
-            {
-                map[playerY][playerX] = '*';
-                return true;
-            }
-        }
-        else if (playerDirection == 3)
-        {
-            if (isPositionOnMap(playerY, playerX - 1) && 
-                map[playerY][playerX - 1] == '+' &&
-                (map[playerY][playerX - 2] == '#' || map[playerY][playerX - 2] == 'O'))
-            {
-                map[playerY][playerX] = '*';
-                return true;
-            }
-        }
+        visited.Add(new VisitedField() { X = playerX, Y = playerY, Direction = playerDirection });
         return false;
     }
-    
+
+
     private void movePlayer()
     {
         if (rotatePlayerIfObstacle())
