@@ -44,6 +44,7 @@ class Map
 
     private void findPlayerPosition()
     {
+        playerDirection = 0;
         for (int i = 0; i < map.Count; i++)
         {
             for (int j = 0; j < map[i].Count; j++)
@@ -101,7 +102,7 @@ class Map
                     {
                         Console.WriteLine($"Endless loop at {i}, {j}");
                         Console.WriteLine($"Player at {playerY}, {playerX}");
-                        //printMap();
+                        printMap();
                         count++;
                         break;
                     }
@@ -129,9 +130,8 @@ class Map
 
     private bool isPlayerOnMap()
     {
-        return playerX >= 0 && playerX < map.Count && playerY >= 0 && playerY < map[0].Count;
+        return playerX >= 0 && playerX < map[0].Count && playerY >= 0 && playerY < map.Count;
     }
-
 
     private bool isPlayerInEndlessLoop()
     {
@@ -146,7 +146,6 @@ class Map
         return false;
     }
 
-
     private void movePlayer()
     {
         if (rotatePlayerIfObstacle())
@@ -158,98 +157,67 @@ class Map
         {
             case 0:
                 playerY--;
-                if (isPlayerOnMap() && map[playerY][playerX] != '+')
-                {
-                    if (map[playerY][playerX] == '#' || map[playerY][playerX] == 'O')
-                    {
-                        throw new Exception("Player is in a wall");
-                    }
-                    map[playerY][playerX] = '|';
-                }
                 break;
             case 1:
                 playerX++;
-                if (isPlayerOnMap() && map[playerY][playerX] != '+')
-                {
-                    if (map[playerY][playerX] == '#' || map[playerY][playerX] == 'O')
-                    {
-                        throw new Exception("Player is in a wall");
-                    }
-                    map[playerY][playerX] = '-';
-                }
                 break;
             case 2:
                 playerY++;
-                if (isPlayerOnMap() && map[playerY][playerX] != '+')
-                {
-                    if (map[playerY][playerX] == '#' || map[playerY][playerX] == 'O')
-                    {
-                        throw new Exception("Player is in a wall");
-                    }
-                    map[playerY][playerX] = '|';
-                }
                 break;
             case 3:
                 playerX--;
-                if (isPlayerOnMap() && map[playerY][playerX] != '+')
-                {
-                    if (map[playerY][playerX] == '#' || map[playerY][playerX] == 'O')
-                    {
-                        throw new Exception("Player is in a wall");
-                    }
-                    map[playerY][playerX] = '-';
-                }
                 break;
+        }
+
+        if (!isPlayerOnMap())
+        {
+            return;
+        }
+
+        if (map[playerY][playerX] != '+')
+        {
+            if (map[playerY][playerX] == '#' || map[playerY][playerX] == 'O')
+            {
+                throw new Exception("Player is in a wall");
+            }
+            map[playerY][playerX] = playerDirection % 2 == 0 ? '|' : '-';
         }
     }
 
     private bool rotatePlayerIfObstacle()
     {
-        if (playerDirection == 0)
+        if (playerDirection == 0 && isPositionOnMap(playerY - 1, playerX) && (map[playerY - 1][playerX] == '#' || map[playerY - 1][playerX] == 'O'))
         {
-            if (isPositionOnMap(playerY - 1, playerX) && (map[playerY - 1][playerX] == '#' || map[playerY - 1][playerX] == 'O'))
-            {
-                map[playerY][playerX] = '+';
-                playerDirection = 1;
-                return true;
-            }
+            map[playerY][playerX] = '+';
+            playerDirection = 1;
+            return true;
         }
-        else if (playerDirection == 1)
+        else if (playerDirection == 1 && isPositionOnMap(playerY, playerX + 1) && (map[playerY][playerX + 1] == '#' || map[playerY][playerX + 1] == 'O'))
         {
-            if (isPositionOnMap(playerY, playerX + 1) && (map[playerY][playerX + 1] == '#' || map[playerY][playerX + 1] == 'O'))
-            {
-                map[playerY][playerX] = '+';
-                playerDirection = 2;
-                return true;
-            }
+            map[playerY][playerX] = '+';
+            playerDirection = 2;
+            return true;
         }
-        else if (playerDirection == 2)
+        else if (playerDirection == 2 && isPositionOnMap(playerY + 1, playerX) && (map[playerY + 1][playerX] == '#' || map[playerY + 1][playerX] == 'O'))
         {
-            if (isPositionOnMap(playerY + 1, playerX) && (map[playerY + 1][playerX] == '#' || map[playerY + 1][playerX] == 'O'))
-            {
-                map[playerY][playerX] = '+';
-                playerDirection = 3;
-                return true;
-            }
+            map[playerY][playerX] = '+';
+            playerDirection = 3;
+            return true;
         }
-        else if (playerDirection == 3)
+        else if (playerDirection == 3 && isPositionOnMap(playerY, playerX - 1) && (map[playerY][playerX - 1] == '#' || map[playerY][playerX - 1] == 'O'))
         {
-            if (isPositionOnMap(playerY, playerX - 1) && (map[playerY][playerX - 1] == '#' || map[playerY][playerX - 1] == 'O'))
-            {
-                map[playerY][playerX] = '+';
-                playerDirection = 0;
-                return true;
-            }
+            map[playerY][playerX] = '+';
+            playerDirection = 0;
+            return true;
         }
         return false;
     }
 
-    private bool isPositionOnMap(int x, int y)
+    private bool isPositionOnMap(int y, int x)
     {
-        return x >= 0 && x < map[0].Count && y >= 0 && y < map.Count;
+        return y >= 0 && y < map.Count && x >= 0 && x < map[0].Count;
     }
 }
-
 
 class Program
 {
