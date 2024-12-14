@@ -1,14 +1,14 @@
 ﻿class CalibrationEquation
 {
     public Int64 Value { get; set; }
-    public List<int> Operands { get; set; }
+    public List<Int64> Operands { get; set; }
 
     public CalibrationEquation(string line)
     {
-        Operands = new List<int>();
+        Operands = new List<Int64>();
         var parts = line.Split(": ");
         Value = Int64.Parse(parts[0]);
-        Operands = parts[1].Split(' ').Select(int.Parse).ToList();
+        Operands = parts[1].Split(' ').Select(Int64.Parse).ToList();
     }
 
     // Try the combination of + and * operators for all the operands
@@ -16,7 +16,7 @@
     // return true if it is
     public bool IsValid()
     {
-        List<int> totals = new List<int>();
+        List<Int64> totals = new List<Int64>();
         for (int i = 0; i < Operands.Count; i++)
         {
             if (i == 0)
@@ -25,9 +25,19 @@
             }
             else
             {
-                List<int> newTotals = new List<int>();
+                List<Int64> newTotals = new List<Int64>();
                 foreach (var total in totals)
                 {
+                    string concatenated = $"{total}{Operands[i]}";
+                    if (Int64.TryParse(concatenated, out Int64 result))
+                    {
+                        newTotals.Add(result);
+                    }
+                    else
+                    {
+                        // Handle the error case
+                        throw new ArgumentException($"The concatenated string '{concatenated}' is not a valid Int64.");
+                    }
                     newTotals.Add(total + Operands[i]);
                     newTotals.Add(total * Operands[i]);
                 }
