@@ -1,37 +1,42 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-class Plot
+﻿class Plot
 {
     public char Type { get; set; }
     public int X { get; set; }
     public int Y { get; set; }
     public int Sides { get; set; }
+    public bool NorthFence { get; set; }
+    public bool EastFence { get; set; }
+    public bool SouthFence { get; set; }
+    public bool WestFence { get; set; }
     public bool inRegion { get; set; }
 
-    public Plot(char type, int x, int y, int sides)
+    public Plot(char type, int x, int y, int sides, bool west, bool north, bool east, bool south)
     {
-        this.Type = type;
-        this.X = x;
-        this.Y = y;
-        this.Sides = sides;
+        Type = type;
+        X = x;
+        Y = y;
+        Sides = sides;
+        WestFence = west;
+        NorthFence = north;
+        EastFence = east;
+        SouthFence = south;
         inRegion = false;
-       
     }
-        // Override hashcode and equals to use hashset
-        public override int GetHashCode()
-        {
-            return X ^ Y;
-        }
 
-        public override bool Equals(object obj)
+    public override int GetHashCode()
+    {
+        return X ^ Y;
+    }
+
+    public override bool Equals(object obj)
+    {
+        var other = obj as Plot;
+        if (other == null)
         {
-            var other = obj as Plot;
-            if (other == null)
-            {
-                return false;
-            }
-            return X == other.X && Y == other.Y;
+            return false;
         }
+        return X == other.X && Y == other.Y;
+    }
 }
 
 class Region
@@ -103,23 +108,31 @@ class Map
             {
                 var c = line[j];
                 var sides = 0;
+                bool north = false;
+                bool east = false;
+                bool south = false;
+                bool west = false;
                 if (j == 0 || (j > 0 && lines[i][j - 1] != c))
                 {
+                    west = true;
                     sides++;
                 }
                 if (i == 0 || (i > 0 && lines[i - 1][j] != c))
                 {
+                    north = true;
                     sides++;
                 }
                 if (j == line.Length - 1 || (j < line.Length - 1 && lines[i][j + 1] != c))
                 {
+                    east = true;
                     sides++;
                 }
                 if (i == lines.Length - 1 || (i < lines.Length - 1 && lines[i + 1][j] != c))
                 {
+                    south = true;
                     sides++;
                 }
-                var plot = new Plot(c, j, i, sides);
+                var plot = new Plot(c, j, i, sides, west, north, east, south);
                 row.Add(plot);
             }
             plots.Add(row);
