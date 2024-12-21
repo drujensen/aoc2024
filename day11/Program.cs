@@ -48,7 +48,7 @@
             return 1;
         }
 
-        if (stone  == 0)
+        if (stone == 0)
         {
             return RecursiveBlink(1, count + 1);
         }
@@ -83,7 +83,6 @@
         {
             Blink();
         }
-        Console.WriteLine(string.Join(" ", stones));
         Console.WriteLine($"Count: {stones.Count}");
     }
 }
