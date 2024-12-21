@@ -33,7 +33,6 @@ class Region
         while (stack.Count > 0)
         {
             var current = stack.Pop();
-            current.inRegion = true;
             AddPlot(current);
 
             if (current.X > 0 && map[current.Y][current.X - 1].Type == current.Type && !map[current.Y][current.X - 1].inRegion)
@@ -86,19 +85,19 @@ class Map
             {
                 var c = line[j];
                 var sides = 0;
-                if (j > 0 && lines[i][j - 1] == c)
+                if (j == 0 || (j > 0 && lines[i][j - 1] != c))
                 {
                     sides++;
                 }
-                if (i > 0 && lines[i - 1][j] == c)
+                if (i == 0 || (i > 0 && lines[i - 1][j] != c))
                 {
                     sides++;
                 }
-                if (j < line.Length - 1 && lines[i][j + 1] == c)
+                if (j == line.Length - 1 || (j < line.Length - 1 && lines[i][j + 1] != c))
                 {
                     sides++;
                 }
-                if (i < lines.Length - 1 && lines[i + 1][j] == c)
+                if (i == lines.Length - 1 || (i < lines.Length - 1 && lines[i + 1][j] != c))
                 {
                     sides++;
                 }
