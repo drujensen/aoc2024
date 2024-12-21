@@ -1,4 +1,6 @@
-﻿class Plot
+﻿using System.Security.Cryptography.X509Certificates;
+
+class Plot
 {
     public char Type { get; set; }
     public int X { get; set; }
@@ -13,12 +15,28 @@
         this.Y = y;
         this.Sides = sides;
         inRegion = false;
+       
     }
+        // Override hashcode and equals to use hashset
+        public override int GetHashCode()
+        {
+            return X ^ Y;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as Plot;
+            if (other == null)
+            {
+                return false;
+            }
+            return X == other.X && Y == other.Y;
+        }
 }
 
 class Region
 {
-    public List<Plot> plots = new List<Plot>();
+    public HashSet<Plot> plots = new HashSet<Plot>();
 
     public void AddPlot(Plot plot)
     {
@@ -106,6 +124,7 @@ class Map
             }
             plots.Add(row);
         }
+        FindRegions();
     }
 
     public void FindRegions()
@@ -126,12 +145,24 @@ class Map
         }
     }
 
+    public void PrintMap()
+    {
+        foreach (var row in plots)
+        {
+            foreach (var plot in row)
+            {
+                Console.Write(plot.Sides);
+            }
+            Console.WriteLine();
+        }
+    }
+
     public void Print()
     {
-        FindRegions();
         var total = 0;
         foreach (var region in regions)
         {
+            Console.WriteLine($"Area: {region.Area()}, Parameter: {region.Parameter()}");
             total += region.Area() * region.Parameter();
         }
         Console.WriteLine($"Total: {total}");
@@ -144,6 +175,7 @@ class Program
     {
         var lines = File.ReadAllLines("input.txt");
         var map = new Map(lines);
+        map.PrintMap();
         map.Print();
     }
 }
