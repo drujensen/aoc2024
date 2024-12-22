@@ -1,22 +1,22 @@
 ﻿class Prize
 {
-    public int X { get; }
-    public int Y { get; }
+    public Int64 X { get; }
+    public Int64 Y { get; }
 
     public Prize(string data)
     {
         var parts = data.Split(':');
         var tmp = parts[1].Split(',');
-        X = int.Parse(tmp[0].Split('=')[1]);
-        Y = int.Parse(tmp[1].Split('=')[1]);
+        X = Int64.Parse(tmp[0].Split('=')[1]) * 10000000000000;
+        Y = Int64.Parse(tmp[1].Split('=')[1]) * 10000000000000;
     }
 
 }
 
 class Button
 {
-    public int X { get; }
-    public int Y { get; }
+    public Int64 X { get; }
+    public Int64 Y { get; }
 
     public Button(string data)
     {
@@ -30,16 +30,16 @@ class Button
 
 class ComboPresses
 {
-    public int APresses { get; }
-    public int BPresses { get; }
+    public Int64 APresses { get; }
+    public Int64 BPresses { get; }
 
-    public ComboPresses(int aPresses, int bPresses)
+    public ComboPresses(Int64 aPresses, Int64 bPresses)
     {
         APresses = aPresses;
         BPresses = bPresses;
     }
 
-    public int Cost()
+    public Int64 Cost()
     {
         return (APresses * 3) + (BPresses * 1);
     }
@@ -62,17 +62,22 @@ class ClawMachine
 
     public void FindAllPathsToPrize()
     {
-        int aPresses = 0;
-        int bPresses = 0;
-        while (aButton.X * aPresses < prize.X && aButton.Y * aPresses < prize.Y)
+        Int64 aPresses = 0;
+        Int64 bPresses = 0;
+        while (aButton.X * aPresses <= prize.X && aButton.Y * aPresses <= prize.Y)
         {
             var modx = (prize.X - (aButton.X * aPresses)) % bButton.X;
             var mody = (prize.Y - (aButton.Y * aPresses)) % bButton.Y;
             if (modx == 0 && mody == 0)
             {
-                bPresses = (prize.X - (aButton.X * aPresses)) / bButton.X;
-                Console.WriteLine($"Found A: {aPresses}, B: {bPresses}");
-                solutions.Add(new ComboPresses(aPresses, bPresses));
+                var divX = (prize.X - (aButton.X * aPresses)) / bButton.X;
+                var divY = (prize.Y - (aButton.Y * aPresses)) / bButton.Y;
+                if (divX == divY)
+                {
+                    bPresses = divX;
+                    Console.WriteLine($"Found A: {aPresses}, B: {bPresses}");
+                    solutions.Add(new ComboPresses(aPresses, bPresses));
+                }
             }
             aPresses++;
         }
@@ -101,7 +106,7 @@ class Program
             clawMachines.Add(claw);
         }
 
-        var tokens = 0;
+        Int64 tokens = 0;
         foreach (var claw in clawMachines)
         {
             var bestSolution = claw.GetBestSolution();
