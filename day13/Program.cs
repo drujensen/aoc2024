@@ -7,8 +7,8 @@
     {
         var parts = data.Split(':');
         var tmp = parts[1].Split(',');
-        X = Int64.Parse(tmp[0].Split('=')[1]) * 10000000000000;
-        Y = Int64.Parse(tmp[1].Split('=')[1]) * 10000000000000;
+        X = Int64.Parse(tmp[0].Split('=')[1]) + 10000000000000;
+        Y = Int64.Parse(tmp[1].Split('=')[1]) + 10000000000000;
     }
 
 }
