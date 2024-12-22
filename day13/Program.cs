@@ -28,12 +28,29 @@ class Button
 
 }
 
+class ComboPresses
+{
+    public int APresses { get; }
+    public int BPresses { get; }
+
+    public ComboPresses(int aPresses, int bPresses)
+    {
+        APresses = aPresses;
+        BPresses = bPresses;
+    }
+
+    public int Cost()
+    {
+        return (APresses * 3) + (BPresses * 1);
+    }
+}
+
 class ClawMachine
 {
     private readonly Button aButton;
     private readonly Button bButton;
     private readonly Prize prize;
-    private List<Tuple<int, int>> solutions = new List<Tuple<int, int>>();
+    private List<ComboPresses> solutions = new List<ComboPresses>();
 
     public ClawMachine(string[] lines)
     {
@@ -49,15 +66,25 @@ class ClawMachine
         int bPresses = 0;
         while (aButton.X * aPresses < prize.X && aButton.Y * aPresses < prize.Y)
         {
-            if (prize.X - (aButton.X * aPresses) % bButton.X == 0 && 
-                prize.Y - (aButton.Y * aPresses) % bButton.Y == 0)
+            var modx = (prize.X - (aButton.X * aPresses)) % bButton.X;
+            var mody = (prize.Y - (aButton.Y * aPresses)) % bButton.Y;
+            if (modx == 0 && mody == 0)
             {
-                bPresses = prize.X - (aButton.X * aPresses) / bButton.X;
+                bPresses = (prize.X - (aButton.X * aPresses)) / bButton.X;
                 Console.WriteLine($"Found A: {aPresses}, B: {bPresses}");
-                solutions.Add(new Tuple<int, int>(aPresses, bPresses));
+                solutions.Add(new ComboPresses(aPresses, bPresses));
             }
             aPresses++;
         }
+    }
+
+    public ComboPresses? GetBestSolution()
+    {
+        if (solutions.Any() == false)
+        {
+            return null;
+        }
+        return solutions.MinBy(x => x.Cost());
     }
 }
 
@@ -73,5 +100,16 @@ class Program
             var claw = new ClawMachine(clawData.Split('\n'));
             clawMachines.Add(claw);
         }
+
+        var tokens = 0;
+        foreach (var claw in clawMachines)
+        {
+            var bestSolution = claw.GetBestSolution();
+            if (bestSolution != null)
+            {
+                tokens += bestSolution.Cost();
+            }
+        }
+        Console.WriteLine($"Tokens: {tokens}");
     }
 }
