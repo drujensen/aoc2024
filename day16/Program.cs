@@ -1,4 +1,6 @@
-﻿enum Direction
+﻿using Microsoft.VisualBasic;
+
+enum Direction
 {
     North,
     East,
@@ -13,7 +15,17 @@ class Position
     public int Y { get; set; }
     public Direction Direction { get; set; }
     public int Cost { get; set; }
-    public bool Visited { get; set; }
+
+    public bool Equals(Position obj)
+    {
+        return obj.X == X && obj.Y == Y && obj.Direction == Direction;
+    }
+
+    public int HashCode()
+    {
+        return X.GetHashCode() ^ Y.GetHashCode() ^ Direction.GetHashCode();
+    }
+
 }
 
 
@@ -24,6 +36,23 @@ class Path
     public Path()
     {
         Positions = new List<Position>();
+    }
+
+    public void AddRange(IEnumerable<Position> positions)
+    {
+        foreach (var position in positions)
+        {
+            Add(position);
+        }
+    }
+    public bool Add(Position position)
+    {
+        if (Positions.Any(pos => pos.Equals(position)))
+        {
+            return false;
+        }
+        Positions.Add(position);
+        return true;
     }
 }
 
@@ -36,14 +65,13 @@ class Path
 // find the shortest path from S to E
 class Maze
 {
-    public List<Path> Paths { get; set; }
+    public Stack<Path> Paths { get; set; }
     public List<List<char>> Map { get; set; }
     public Position? Start { get; set; }
     public Position? End { get; set; }
 
     public Maze(string[] lines)
     {
-        Paths = new List<Path>();
         Map = new List<List<char>>();
 
         foreach (var line in lines)
@@ -89,13 +117,14 @@ class Maze
     {
         var solutions = new List<Path>();
 
+        var Paths = new Stack<Path>();
         var path = new Path();
-        path.Positions.Add(Start);
-        Paths.Add(path);
+        path.Add(Start);
+        Paths.Push(path);
 
         while (Paths.Any())
         {
-            var currentPath = Paths.First();
+            var currentPath = Paths.Pop();
             var currentPosition = currentPath.Positions.Last();
 
             if (currentPosition.X == End.X && currentPosition.Y == End.Y)
@@ -103,29 +132,26 @@ class Maze
                 Console.WriteLine("Found the end");
                 Console.WriteLine("Cost: " + currentPath.Positions.Sum(p => p.Cost));
                 solutions.Add(currentPath);
-                Paths.Remove(currentPath);
                 continue;
             }
-
-            if (currentPosition.Visited)
-            {
-                Paths.Remove(currentPath);
-                continue;
-            }
-
-            currentPosition.Visited = true;
 
             var nextPositions = GetNextPositions(currentPosition);
 
             foreach (var nextPosition in nextPositions)
             {
                 var newPath = new Path();
-                newPath.Positions.AddRange(currentPath.Positions);
-                newPath.Positions.Add(nextPosition);
-                Paths.Add(newPath);
+                newPath.AddRange(currentPath.Positions);
+                // Avoid going back to the previous position
+                if (newPath.Add(nextPosition)) 
+                {
+                    Paths.Push(newPath);
+                }
             }
         }
-
+        if (!solutions.Any())
+        {
+            throw new Exception("No solution found");
+        }
         return solutions.OrderBy(s => s.Positions.Sum(p => p.Cost)).First();
     }
 
