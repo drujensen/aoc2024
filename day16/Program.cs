@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-
-enum Direction
+﻿enum Direction
 {
     North,
     East,
@@ -16,16 +14,19 @@ class Position
     public Direction Direction { get; set; }
     public int Cost { get; set; }
 
-    public bool Equals(Position obj)
-    {
-        return obj.X == X && obj.Y == Y && obj.Direction == Direction;
-    }
+   public override bool Equals(object obj)
+   {
+       if (obj is Position other)
+       {
+           return X == other.X && Y == other.Y && Direction == other.Direction;
+       }
+       return false;
+   }
 
-    public int HashCode()
-    {
-        return X.GetHashCode() ^ Y.GetHashCode() ^ Direction.GetHashCode();
-    }
-
+   public override int GetHashCode()
+   {
+       return HashCode.Combine(X, Y, Direction);
+   }
 }
 
 
@@ -45,14 +46,19 @@ class Path
             Add(position);
         }
     }
-    public bool Add(Position position)
+    public void Add(Position position)
     {
-        if (Positions.Any(pos => pos.Equals(position)))
-        {
-            return false;
-        }
         Positions.Add(position);
-        return true;
+    }
+
+    public Position CurrentPosition()
+    {
+        return Positions.Last();
+    }
+
+    public int Cost()
+    {
+        return Positions.Sum(p => p.Cost);
     }
 }
 
@@ -65,7 +71,6 @@ class Path
 // find the shortest path from S to E
 class Maze
 {
-    public Stack<Path> Paths { get; set; }
     public List<List<char>> Map { get; set; }
     public Position? Start { get; set; }
     public Position? End { get; set; }
@@ -115,44 +120,48 @@ class Maze
 
     public Path CheapestPath()
     {
-        var solutions = new List<Path>();
+        if (Start == null || End == null)
+        {
+            throw new Exception("Start or End not found");
+        }
 
-        var Paths = new Stack<Path>();
+        var priorityQueue = new PriorityQueue<Path, int>();
         var path = new Path();
         path.Add(Start);
-        Paths.Push(path);
+        priorityQueue.Enqueue(path, 0);
 
-        while (Paths.Any())
+        var bestCosts = new Dictionary<Position, int>();
+
+        while (priorityQueue.Count > 0)
         {
-            var currentPath = Paths.Pop();
-            var currentPosition = currentPath.Positions.Last();
+            var currentPath = priorityQueue.Dequeue();
+            var currentPosition = currentPath.CurrentPosition();
 
             if (currentPosition.X == End.X && currentPosition.Y == End.Y)
             {
-                Console.WriteLine("Found the end");
-                Console.WriteLine("Cost: " + currentPath.Positions.Sum(p => p.Cost));
-                solutions.Add(currentPath);
-                continue;
+                return currentPath;
             }
 
-            var nextPositions = GetNextPositions(currentPosition);
-
-            foreach (var nextPosition in nextPositions)
+            foreach (var nextPosition in GetNextPositions(currentPosition))
             {
-                var newPath = new Path();
-                newPath.AddRange(currentPath.Positions);
-                // Avoid going back to the previous position
-                if (newPath.Add(nextPosition)) 
+                if (!currentPath.Positions.Any(p => p.Equals(nextPosition)))
                 {
-                    Paths.Push(newPath);
+                    var newPath = new Path();
+                    newPath.AddRange(currentPath.Positions);
+                    newPath.Add(nextPosition);
+                    int newCost = currentPath.Cost() + nextPosition.Cost;
+                    if (!bestCosts.ContainsKey(nextPosition) || newCost < bestCosts[nextPosition])
+                    {
+                        bestCosts[nextPosition] = newCost;
+                        if (!currentPath.Positions.Any(p => p.Equals(nextPosition)))
+                        {
+                           priorityQueue.Enqueue(newPath, newCost);
+                        }
+                    }
                 }
             }
         }
-        if (!solutions.Any())
-        {
-            throw new Exception("No solution found");
-        }
-        return solutions.OrderBy(s => s.Positions.Sum(p => p.Cost)).First();
+        throw new Exception("No solution found");
     }
 
     private List<Position> GetNextPositions(Position currentPosition)
