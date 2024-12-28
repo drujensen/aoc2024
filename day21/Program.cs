@@ -133,7 +133,7 @@
 
     public string GetShortestPath(char current, char next)
     {
-        return _shortestPaths[current][next];
+        return _shortestPaths[current][next] + 'A';
     }
 
 }
@@ -174,7 +174,7 @@ class RobotKeyPad
 
     public string GetShortestPath(char current, char next)
     {
-        return _shortestPaths[current][next];
+        return _shortestPaths[current][next] + 'A';
     }
 }
 
@@ -188,7 +188,6 @@ class Program
         var numberKeyPad = new NumberKeyPad();
         var robot1 = new RobotKeyPad();
         var robot2 = new RobotKeyPad();
-        var human = new RobotKeyPad();
         foreach (var line in lines)
         {
             var current = 'A';
@@ -215,15 +214,7 @@ class Program
                 current = next;
             }
 
-            current = 'A';
-            var humanPath = "";
-            foreach (var next in robot2Path)
-            {
-                humanPath += human.GetShortestPath(current, next);
-                current = next;
-            }
-
-            results.Add(line, humanPath);
+            results.Add(line, robot2Path);
         }
 
         // loop through the dictionary
@@ -235,6 +226,8 @@ class Program
         {
             var number = int.Parse(result.Key.Replace("A", ""));
             total += number * result.Value.Length;
+            Console.WriteLine($"{result.Key}: {result.Value}");
+            Console.WriteLine($"{number} * {result.Value.Length}");
         }
 
         Console.WriteLine($"Total: {total}");
