@@ -113,7 +113,7 @@ class BreadBoard
 
     // Combining the bits from all wires starting with z produces the binary number.
     // Converting this number to decimal gives the final answer.
-    // Least significant bit is Z0 to Most significant bit Z45.
+    // Least significant bit is Z0 to Most significant bitcd i Z45.
     public Int64 GetZValue()
     {
         List<int> bits = new List<int>();
