@@ -23,7 +23,7 @@
 
     public void FindNetworkOf3()
     {
-        HashSet<HashSet<string>> networkOf3 = new HashSet<HashSet<string>>();
+        HashSet<string> networkOf3 = new HashSet<string>();
 
         foreach (var (key, value) in routeTable)
         {
@@ -39,8 +39,10 @@
                             {
                                 if (v3 == key)
                                 {
-                                    HashSet<string> networkOf3Set = new HashSet<string> { v3, v2, v };
-                                    networkOf3.Add(networkOf3Set);
+                                    List<string> networkOf3List = new List<string> { key, v, v2 };
+                                    networkOf3List.Sort();
+                                    var str = string.Join("-", networkOf3List);
+                                    networkOf3.Add(str);
                                 }
                             }
                         }
@@ -49,12 +51,25 @@
             }
         }
 
-        var filteredNetworkOf3WhereAnyCommputerNameStartsWithTheLettert = networkOf3.Where(x => x.Any(y => y.StartsWith("t"))).ToList();
-        foreach (var network in filteredNetworkOf3WhereAnyCommputerNameStartsWithTheLettert)
+        var filtered = networkOf3.Where(x => x.StartsWith("t") || x.Contains("-t")).ToList();
+        foreach (var network in filtered)
         {
-            Console.WriteLine(string.Join(", ", network));
+            Console.WriteLine(network);
         }
-        Console.WriteLine($"Total: {filteredNetworkOf3WhereAnyCommputerNameStartsWithTheLettert.Count}");
+        Console.WriteLine($"Total: {filtered.Count}");
+    }
+
+    public string FindPassword()
+    {
+        List<string> networkList = new List<string>();
+        foreach (var (key, value) in routeTable)
+        {
+            networkList.Add(key);
+        }
+
+        networkList.Sort();
+        var password = string.Join(",", networkList);
+        return password;
     }
 
     public void Print()
@@ -73,5 +88,6 @@ class Program
         var lines = File.ReadAllLines("input.txt");
         var computerNetwork = new ComputerNetwork(lines);
         computerNetwork.FindNetworkOf3();
+        Console.WriteLine(computerNetwork.FindPassword());
     }
 }
