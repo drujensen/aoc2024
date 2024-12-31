@@ -80,9 +80,9 @@ class TopographicalMap
         width = lines[0].Length;
         length = lines.Length;
         map = new int[length, width];
-        for (int i = 0; i < lines.Length; i++)
+        for (int i = 0; i < length; i++)
         {
-            for (int j = 0; j < lines[i].Length; j++)
+            for (int j = 0; j < width; j++)
             {
                 map[i, j] = lines[i][j] - '0';
             }
@@ -90,9 +90,9 @@ class TopographicalMap
 
         // Find all trail points
         trailPoints = new List<TrailPoint>();
-        for (int i = 0; i < map.GetLength(0); i++)
+        for (int i = 0; i < length; i++)
         {
-            for (int j = 0; j < map.GetLength(1); j++)
+            for (int j = 0; j < width; j++)
             {
                 if (map[i, j] == 0)
                 {

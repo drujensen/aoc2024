@@ -22,8 +22,6 @@
     public void Run()
     {
         IP = 0;
-        RB = 0;
-        RC = 0;
         Output = new List<int>();
         while (IP < Instructions.Count - 1)
         {
@@ -110,15 +108,5 @@ class Program
         var data = File.ReadAllText("input.txt");
         var computer = new Computer(data);
         computer.Run();
-
-        var computer2 = new Computer(data);
-        var tmpRA = 1;
-        while( computer2.Instructions != computer2.Output)
-        {
-            computer2.RA = tmpRA;
-            computer2.Run();
-            tmpRA++;
-        }
-        Console.WriteLine($"RA: {tmpRA}");
     }
 }

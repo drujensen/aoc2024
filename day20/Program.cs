@@ -41,6 +41,7 @@
 
     public int FindAllCheatsSave100Picos()
     {
+        var visited = new HashSet<(int, int)>();
         var solutions = new List<List<string>>();
         var path = FindPath();
         var longestPath = path.Count;
@@ -49,13 +50,17 @@
         {
             for (int j = 0; j < _maze.GetLength(1); j++)
             {
-                _maze[i, j] = '.';
                 foreach (var (dx, dy) in new[] { (0, 1), (0, -1), (1, 0), (-1, 0) })
                 {
                     var newX = i + dx;
                     var newY = j + dy;
                     if (newX >= 0 && newX < _maze.GetLength(0) && newY >= 0 && newY < _maze.GetLength(1))
                     {
+                        if (visited.Contains((newX, newY)))
+                            continue;
+                        visited.Add((newX, newY));
+                        _maze = (char[,])originalMaze.Clone();
+                        _maze[i, j] = '.';
                         _maze[newX, newY] = '.';
                         var newPath = FindPath();
                         if (newPath.Count < longestPath - 100)
@@ -64,7 +69,6 @@
                         }
                     }
                 }
-                _maze = (char[,])originalMaze.Clone();
             }
         }
 
